@@ -83,9 +83,39 @@ If the options you give the command running inside the container direct it to fi
 
 Also note that volume mapping must be done at the time you **run** a container. You can't add volume mapping when you **exec** a command on a running container. (TODO check if this is true)
 
-#### Other useful options
+#### Running X11 programs (such as HawkEye)
 
-talk about DISPLAY, with example for both Mac and Linux
+Mac OS and Linux require sligtly different invocations to be able to display on your host machine.
+
+##### Mac OS
+
+Find the ip address of your machine, for example if your machine is called *my_machine* use this command: `host my_machine`
+
+Let's say your address is 192.168.0.10 you can then invoke the docker run command with the following option: `-e DISPLAY=192.168.0.10`
+
+To run *HawkEye*, you can start the container this way: (you will of course have to add a couple of -v mappings for the input and output folders)
+
+```
+docker run --name lrose_container --user lrose \
+           -e DISPLAY=192.168.0.10:0  -v /tmp/.X11-unix:/tmp/.X11-unix:rw -it \
+           -w /home/lrose lrose-blaze /usr/local/lrose/bin/HawkEye
+```
+
+##### Linux
+
+You just have to use the `--env="DISPLAY" option to the docker run command.
+You might have to set QT_X11_MITSHM to 1. MIT-SHM is an extension that allows faster transaction by using shared memory. This is blocked by docker isolation, so if the flag is not set you will get permission errors.
+
+To run *HawkEye*, you can start the container this way: (you will of course have to add a couple of -v mappings for the input and output folders)
+
+```
+docker run --name lrose_container --user lrose \
+           --env="DISPLAY" --env QT_X11_NO_MITSHM=1 \
+           -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+           -w /home/lrose lrose-blaze /usr/local/lrose/bin/HawkEye
+```
+
+#### Other useful options
 
 talk about environment variables
 
@@ -149,4 +179,7 @@ Where ... is either a container name, or its unique id.
 `docker rmi ...`
 
 Here again, ... is either the image name, or its unique id.
+
+   
+
 
