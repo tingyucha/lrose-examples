@@ -2,12 +2,14 @@
 
 ## What is it?
 
-Lrose-Blaze allows you to run Lrose applications without having to compile and install lrose binaries and libraries. 
+Lrose-Blaze allows you to run Lrose applications without having to
+compile and install lrose binaries and libraries. 
 
 It is a Ubuntu 14.04 image, with lrose-core installed in 
 /usr/local/lrose.
 
-It has one user named **lrose** so if you don't want to run commands as root, you can specify **-u lrose** when you `docker run` or `docker exec`
+It has one user named **lrose** so if you don't want to run commands
+as root, you can specify **-u lrose** when you `docker run` or `docker exec`
 
 ## Installing and running
 
@@ -31,9 +33,48 @@ ubuntu_apache2      latest              4b5eefbe9c6c
 ncareol/soloii      latest              baa1ee4c3541
 ```
 
+### Using the lrose wrapper ###
+
+The `lrose` wrapper is a bash script that tries to make running and
+managing docker containers a bit easier. Instead of having to provide
+a lot of docker arguments (image name, container name, display
+variable, volume mounts...) an lrose command invocation is reduced to
+something like this: 
+
+```
+lrose <few_options> -- <command> <options>
+```
+
+You can run `lrose -h` to see what options the wrapper supports.
+
+For example, to run `HawkEye` in archive mode.
+
+```
+lrose -- HawkEye -archive_url /tmp/KHGX -start_time "2017 08 00 00 00" -time_span 7200
+```
+
+The `lrose` wrapper reads in ~/.lroseargs which, for now, only supports
+volume mappings, one mapping per line. For the example above, you'd
+add an entry to map your data directory to /tmp/KHGX in the container.
+
+You can also add entries for other folders you might need in the
+container. For example:
+
+```
+# Location of HawkEye input radar files
+/path/to/some/folder/KHGX:/tmp/KHGX
+# Output directory for lrose commands
+/my/path/to/large/disk:/tmp/output
+# I want to be able to access my home from inside the container
+/home/miko:/home/miko
+```
+
+The `lrose` wrapper will convert all of these to `--volume` options
+when running a container.
+
 ### Starting an lrose-blaze container
 
-Here you have a few scenarios to choose from:
+If you decide to manage your containers yourself instead of using the `lrose` wrapper, you have a few scenarios to choose from:
 
 1. One time command run
 
